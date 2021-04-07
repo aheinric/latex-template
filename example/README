@@ -1,0 +1,5 @@
+Example of using the LaTeX template with make.
+
+- Search path is extended to include the project's resources, and the local directory tree.
+- Need to have a 'docinfo.sty' on hand; the template class uses it to define some stuff.
+- The .tex document and any includes or custom packages can be anywhere in the directory tree.

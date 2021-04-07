@@ -1,0 +1,103 @@
+Usage for pdftex.mk
+
+Project Structure:
+
+  The rules in this document makes the following assumptions:
+  - The root-level '.tex' files for each document must be in <project>/src/tex/
+  - The LaTeX search path is expanded to include anything under <project>/
+
+Rules:
+
+  %.aux : %.tex
+    Generates the '.aux' file for a given document.
+    This is necessary for some cross-reference features.
+    The '.aux' file will be written to <project>/
+    This will also generate '%.log' in <project>/
+
+  %.pdf : %.aux %.tex
+    Builds the final PDF for a given document.
+    If the corresponding '.aux' file doesn't exist, it gets generated.
+    The PDF is written to <project>/
+    This will also generate '%.log' in <project>/
+
+Targets:
+
+  clean-pdftex : 
+    Deletes all '.pdf', '.aux', and '.log' files in <project>.
+  
+  help-pdftex : 
+    Prints this usage document to console.
+
+Configuration Variables:
+
+  This file defines the following variables intended to be altered by the user:
+
+  PDFTEX:
+    The latex-to-pdf compiler.  Defaults to 'pdflatex'.
+
+  PDFTEX_USER_FLAGS:
+    Variable for passing extra CLI flags to PDFTEX without undoing this file's setup.
+    Defaults empty; override to add flags to the '%.aux' and '%.tex' rules.
+
+  PDFTEX_USER_PATH:
+    Variable for adding directories to PDFTEX's search path.
+    PDFTEX uses a search path syntax I've never seen before:
+      - Entries are separated with ';' (at least on MacOS X)
+      - Paths can be relative; '.' will be the cwd when PDFTEX executes.
+      - Ending a path with 'dir//' will include all descendants of 'dir'.
+      - Ending a path with 'dir/{dir1,...,dirN}' will include all directories 'dir/dir1', ... , 'dir/dirN'.
+
+  PDFTEX_MODE:
+    Execution mode for the compiler.
+    Unlike most compilers, LaTeX compilers allow some degree of user intervention
+    when faced with an error.  pdflatex has the following autonomy modes:
+    
+    'nonstopmode': (DEFAULT)
+      Compiler behaves much like a software compiler;
+      it takes default actions in response to errors,
+      which probably means your build will fail. 
+
+    'batchmode':
+      Like 'nonstopmode', but no console output.
+      Results only appear in the '.log' file.
+    
+    'errorstopmode':
+      Compiler stops and asks for user intervention if it encounters an error.
+    
+    'scrollingmode':
+      Compiler only stops for missing files, or keyboard input.
+      (not sure what 'keyboard input' means; try it and see :p )
+
+Internal Variables:
+
+  This file defines the following variables for internal use.
+  Overriding them will throw out the promised behaviors of this file;
+  use this more as a guide for what names are already taken.
+
+  PDFTEX_RELPATH:
+    Temporary variable, used to find the directory containing this makefile.
+
+  PDFTEX_DIR:
+    Directory containing this makefile.
+    Needed to link the classes and packages provided along with this makefile.
+
+  PDFTEX_CLEAN_PATHS:
+    Path expressions that tell 'clean-pdftex' which files to remove.
+  
+  PDFTEX_PATH_LOCAL:
+    Search path expression including <project>
+
+  PDFTEX_PATH_TEMPLATE:
+    Search path expression including the template packages and classes.
+
+  PDFTEX_PATH_INTERNAL:
+    Search path expression; combination of PDFTEX_PATH_LOCAL and PDFTEX_PATH_TEMPLATE
+
+  PDFTEX_PATH:
+    Search path for pdftex; combination of PDFTEX_PATH_INTERNAL and PDFTEX_USER_PATH
+
+  PDFTEX_FLAGS_INTERNAL:
+    Variable containing internally-defined CLI flags
+
+  PDFTEX_FLAGS:
+    Variable containing all CLI flags for calling PDFTEX
